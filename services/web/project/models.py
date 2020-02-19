@@ -1,12 +1,17 @@
-from . import app, db
+from . import db
 
 
-class User(db.Model):
-    __tablename__ = "users"
+class Warehouse(db.Model):
+    __tablename__ = "warehouse"
 
     id = db.Column(db.Integer, primary_key=True)
-    email = db.Column(db.String(128), unique=True, nullable=False)
-    active = db.Column(db.Boolean(), default=True, nullable=False)
+    user = db.Column(db.Integer, unique=True)
+    first_name = db.Column(db.String(100))
+    last_name = db.Column(db.String(100))
+    merchant = db.Column(db.String(50))
+    phone_number = db.Column(db.String(50))
+    created_at = db.Column(db.DateTime)
+    updated_at = db.Column(db.DateTime)
 
-    def __init__(self, email):
-        self.email = email
+    def __str__(self):
+        return f'{self.first_name} {self.last_name}'

@@ -19,7 +19,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data/
     environment:
-      - POSTGRES_USER=pg_user
+      - POSTGRES_USER=user
       - POSTGRES_PASSWORD=2wsx#EDC
       - POSTGRES_DB=pg_db
 
