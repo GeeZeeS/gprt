@@ -14,9 +14,9 @@ def create_db():
     db.session.commit()
 
 
-# @cli.command("populate")
-# def seed_db():
-#     db.session.commit()
+@cli.command("populate")
+def seed_mongo_db():
+    db = mongo.db.data
 
 
 if __name__ == "__main__":
