@@ -23,5 +23,17 @@ services:
       - POSTGRES_PASSWORD=2wsx#EDC
       - POSTGRES_DB=pg_db
 
+  mongo:
+    image: 'mongo:latest'
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=user
+      - MONGO_INITDB_ROOT_PASSWORD=2wsx#EDC
+    ports:
+      - 27017:27017
+    volumes:
+      - mongodb_data_container:/data/db
+
+
 volumes:
   postgres_data:
+  mongodb_data_container:

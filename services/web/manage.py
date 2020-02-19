@@ -1,6 +1,6 @@
 from flask.cli import FlaskGroup
 
-from project import app, db
+from project import app, db, mongo
 from project.models import Warehouse
 
 
