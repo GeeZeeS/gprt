@@ -21,7 +21,6 @@ def create_db():
 
 @cli.command("populate")
 def seed_mongo_db():
-    # mongo.db.tr
     root_dir = app.config["STATIC_FOLDER"]
     files = os.listdir(root_dir)
     print(files)
@@ -30,8 +29,9 @@ def seed_mongo_db():
         processing_file = open(os.path.join(root_dir, _file), 'r')
         data = pd.read_csv(processing_file)
         json_data = json.loads(data.to_json(orient='records'))
-        mongo.db.mng_db.remove()
-        mongo.db.mng_db[table_name].insert(json_data)
+        for data in json_data:
+            print(data)
+            mongo.db.mng_db[table_name].insert_one(data)
 
 
 if __name__ == "__main__":
