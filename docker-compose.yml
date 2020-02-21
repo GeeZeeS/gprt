@@ -1,0 +1,41 @@
+version: '3.7'
+
+services:
+
+  redis:
+    image: redis
+    ports:
+      - "6379:6379"
+
+  web:
+    build: ./services/web
+    command: python manage.py run -h 0.0.0.0
+    volumes:
+      - ./services/web/:/usr/src/app/
+    ports:
+      - 5000:5000
+    env_file:
+      - ./.env.dev
+    depends_on:
+      - db
+      - mongo
+      - redis
+
+  db:
+    image: postgres:12.0-alpine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=2wsx#EDC
+      - POSTGRES_DB=pg_db
+
+  mongo:
+    image: 'mongo:latest'
+    volumes:
+      - mongodb_data_container:/data/db
+
+
+volumes:
+  postgres_data:
+  mongodb_data_container:
