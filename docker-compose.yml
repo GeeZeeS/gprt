@@ -25,12 +25,6 @@ services:
 
   mongo:
     image: 'mongo:latest'
-    environment:
-      - MONGO_INITDB_ROOT_USERNAME=admin
-      - MONGO_INITDB_ROOT_PASSWORD=password
-      - MONGO_INITDB_DATABASE=mng_db
-    ports:
-      - 27017:27017
     volumes:
       - mongodb_data_container:/data/db
 

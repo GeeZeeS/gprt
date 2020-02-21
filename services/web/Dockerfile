@@ -12,7 +12,7 @@ ENV PYTHONUNBUFFERED 1
 #RUN apk update \
 #    && apk add postgresql-dev gcc python3-dev musl-dev
 
-RUN apk --update add --no-cache g++
+# RUN apk --update add --no-cache g++
 
 # install dependencies
 RUN pip install --upgrade pip
