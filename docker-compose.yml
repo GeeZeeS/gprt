@@ -2,6 +2,11 @@ version: '3.7'
 
 services:
 
+  redis:
+    image: redis
+    ports:
+      - "6379:6379"
+
   web:
     build: ./services/web
     command: python manage.py run -h 0.0.0.0
@@ -13,6 +18,8 @@ services:
       - ./.env.dev
     depends_on:
       - db
+      - mongo
+      - redis
 
   db:
     image: postgres:12.0-alpine
