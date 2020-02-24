@@ -3,7 +3,7 @@ version: '3.7'
 services:
 
   redis:
-    image: redis
+    image: "redis:alpine"
     ports:
       - "6379:6379"
 
@@ -35,6 +35,10 @@ services:
     volumes:
       - mongodb_data_container:/data/db
 
+#  pgadmin:
+#    image: chorss/docker-pgadmin4
+#    ports:
+#      - 5050:5050
 
 volumes:
   postgres_data:
