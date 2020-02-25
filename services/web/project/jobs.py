@@ -68,7 +68,7 @@ def main_job():
             end_date = start_date + timedelta(seconds=299)
         else:
             # If last_inserted date is stored, get date and add 5 minutes
-            start_date = datetime.strptime(last_date, '%Y-%m-%d %H:%M:%S')
+            start_date = datetime.strptime(last_date, '%Y-%m-%d %H:%M:%S') + timedelta(seconds=1)
             end_date = start_date + timedelta(seconds=299)
 
         print(f"Populating Database from {start_date} to {end_date}")
