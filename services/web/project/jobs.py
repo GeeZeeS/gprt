@@ -79,10 +79,14 @@ def main_job():
         populate_data(start_date, end_date)
     # If Database is not populated, import data till 1 January 2020
     else:
-        print("Populating Database from 1 January 2019 to 1 January 2020")
+        # Getting Lowest Object from list
+        orders_data_set = mongo.db.mng_db['orders'].find({}).sort([("created_at", 1)]).limit(1)
+        start_date = orders_data_set[0]['created_at']
 
+        # Setting highest Object to fetch
         end_date = datetime(2020, 1, 1)
-        start_date = datetime(2019, 1, 1)
+
+        print(f"Populating Database from {start_date} to 1 January 2020")
 
         # set last_inserted date to redis
         redis.set("last_date", str(end_date).encode('utf-8'))
