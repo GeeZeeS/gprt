@@ -59,3 +59,30 @@ class WarehouseModel(db.Model):
         self.user_phone_number = user_phone_number
         self.user_created_at = user_created_at
         self.user_updated_at = user_updated_at
+
+    def serialize(self):
+        return {
+            "id": self.id,
+            "created_at": self.created_at,
+            "date_tz": self.date_tz,
+            "item_count": self.item_count,
+            "order_id": self.order_id,
+            "receive_method": self.receive_method,
+            "status": self.status,
+            "store_id": self.store_id,
+            "subtotal": self.subtotal,
+            "tax_percentage": self.tax_percentage,
+            "total": self.total,
+            "total_discount": self.total_discount,
+            "total_gratuity": self.total_gratuity,
+            "total_tax": self.total_tax,
+            "updated_at": self.updated_at,
+            "fulfillment_date_tz": self.fulfillment_date_tz,
+            "user_id": self.user_id,
+            "user_first_name": self.user_first_name,
+            "user_last_name": self.user_last_name,
+            "user_merchant_id": self.user_merchant_id,
+            "user_phone_number": self.user_phone_number,
+            "user_created_at": self.user_created_at,
+            "user_updated_at": self.user_updated_at
+        }

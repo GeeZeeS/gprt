@@ -27,3 +27,7 @@
 ###### After these commands job is automatically running,
 ###### Starting data is populated, and every 5 minutes new data is inserted
 
+###### Last 10 results from DB can be seen by accessing
+```
+> http://127.0.0.1:5000/
+```

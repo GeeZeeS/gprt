@@ -1,8 +1,19 @@
 from . import app, mongo
+from flask import jsonify, make_response
 from bson.json_util import dumps
+from .models import WarehouseModel
+from sqlalchemy import desc
 
 
-@app.route("/<db_name>")
-def mongo_preview(db_name):
-    data = mongo.db.mng_db[db_name].find({}).limit(10)
-    return dumps(data)
+@app.route("/")
+def mongo_preview():
+    return jsonify(
+        {
+            "query": list(
+                map(
+                    lambda dev: dev.serialize(),
+                    WarehouseModel.query.order_by(desc('created_at')).limit(10)
+                              )
+                          )
+        }
+    )
