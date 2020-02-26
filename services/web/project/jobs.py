@@ -2,7 +2,7 @@ from pandas import DataFrame, merge
 from datetime import datetime, timedelta
 from . models import WarehouseModel
 from . import mongo, db, redis, scheduler, app
-import os
+from os import environ
 
 
 # write data to db
@@ -98,6 +98,6 @@ def print_manager(start_date, end_date):
 
 
 # Fix for scheduler to run once on startup
-if not app.debug or os.environ.get('WERKZEUG_RUN_MAIN') == 'true':
+if not app.debug or environ.get('WERKZEUG_RUN_MAIN') == 'true':
     scheduler.start()
     scheduler.add_job(func=main_job, trigger="interval", seconds=300)
