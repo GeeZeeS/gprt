@@ -63,16 +63,19 @@ def main_job():
         last_date = redis.get("last_date").decode('utf-8')
         if last_date is None:
             # If last_inserted date is not stored,
-            # get last inserted date from db, and start from there
+            # get last inserted date from db,
+            # and start from there
             whm_last_date = WarehouseModel.query.order_by(
                 WarehouseModel.created_at.desc()
             ).first()
 
-            # Setting start and end dates
+            # Setting start and end dates,
+            # adding 5 minutes to start_date
             start_date = whm_last_date.created_at + timedelta(seconds=1)
             end_date = start_date + timedelta(seconds=299)
         else:
-            # If last_inserted date is stored, get date and add 5 minutes
+            # If last_inserted date is stored,
+            # get date and add 5 minutes
             start_date = datetime.strptime(last_date, '%Y-%m-%d %H:%M:%S') + timedelta(seconds=1)
             end_date = start_date + timedelta(seconds=299)
     else:
@@ -100,4 +103,4 @@ def print_manager(start_date, end_date):
 # Fix for scheduler to run once on startup
 if not app.debug or environ.get('WERKZEUG_RUN_MAIN') == 'true':
     scheduler.start()
-    scheduler.add_job(func=main_job, trigger="interval", seconds=300)
+    scheduler.add_job(func=main_job, trigger="interval", seconds=10)
