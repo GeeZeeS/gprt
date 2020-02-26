@@ -1,9 +1,11 @@
 from pandas import DataFrame, merge
 from datetime import datetime, timedelta
 from . models import WarehouseModel
-from . import mongo, db, redis, scheduler
+from . import mongo, db, redis, scheduler, app
+import os
 
 
+# write data to db
 def populate_data(start_date, end_date):
     # Filter orders data between dates
     orders_data_set = mongo.db.mng_db['orders'].find(
@@ -60,39 +62,42 @@ def main_job():
         # If DB is populated check if last_inserted date is stored
         last_date = redis.get("last_date").decode('utf-8')
         if last_date is None:
-            # If last_inserted date is not stored, get last inserted date from db, and start from there
+            # If last_inserted date is not stored,
+            # get last inserted date from db, and start from there
             whm_last_date = WarehouseModel.query.order_by(
                 WarehouseModel.created_at.desc()
             ).first()
+
+            # Setting start and end dates
             start_date = whm_last_date.created_at + timedelta(seconds=1)
             end_date = start_date + timedelta(seconds=299)
         else:
             # If last_inserted date is stored, get date and add 5 minutes
             start_date = datetime.strptime(last_date, '%Y-%m-%d %H:%M:%S') + timedelta(seconds=1)
             end_date = start_date + timedelta(seconds=299)
-
-        print(f"Populating Database from {start_date} to {end_date}")
-
-        # set last_inserted date to redis
-        redis.set("last_date", str(end_date).encode('utf-8'))
-        # write data to db
-        populate_data(start_date, end_date)
-    # If Database is not populated, import data till 1 January 2020
     else:
-        # Getting Lowest Object from list
+        # Getting lowest Object from list
         orders_data_set = mongo.db.mng_db['orders'].find({}).sort([("created_at", 1)]).limit(1)
+
+        # Setting start and end dates
         start_date = orders_data_set[0]['created_at']
-
-        # Setting highest Object to fetch
         end_date = datetime(2020, 1, 1)
-
-        print(f"Populating Database from {start_date} to 1 January 2020")
-
-        # set last_inserted date to redis
-        redis.set("last_date", str(end_date).encode('utf-8'))
-        # write data to db
-        populate_data(start_date, end_date)
+    print_manager(start_date, end_date)
+    populate_data(start_date, end_date)
+    redis_manager(end_date)
 
 
-scheduler.start()
-scheduler.add_job(func=main_job, trigger="interval", seconds=300)
+# set last_inserted date to redis
+def redis_manager(end_date):
+    redis.set("last_date", str(end_date).encode('utf-8'))
+
+
+# Print info about populating data
+def print_manager(start_date, end_date):
+    print(f"Populating Database from {start_date} to {end_date}")
+
+
+# Fix for scheduler running only once on startup
+if not app.debug or os.environ.get('WERKZEUG_RUN_MAIN') == 'true':
+    scheduler.start()
+    scheduler.add_job(func=main_job, trigger="interval", seconds=300)
