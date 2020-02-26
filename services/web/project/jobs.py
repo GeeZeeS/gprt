@@ -103,4 +103,4 @@ def print_manager(start_date, end_date):
 # Fix for scheduler to run once on startup
 if not app.debug or environ.get('WERKZEUG_RUN_MAIN') == 'true':
     scheduler.start()
-    scheduler.add_job(func=main_job, trigger="interval", seconds=10)
+    scheduler.add_job(func=main_job, trigger="interval", seconds=300)
