@@ -56,7 +56,7 @@ def updated_data(start_date, end_date):
         # Check data that is duplicated, and let only unique one
         df_concat_updated_orders = concat([
             df_warehouse,
-            df_final]).drop_duplicates(['updated_at'], keep='last', inplace=True)
+            df_final]).drop_duplicates(['updated_at'], keep=False, inplace=True)
 
         if df_concat_updated_orders is not None:
             df.to_sql('warehouse', db.engine, if_exists='append', index_label='pk', index=False)
