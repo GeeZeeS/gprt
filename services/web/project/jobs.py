@@ -1,4 +1,5 @@
-from pandas import DataFrame, merge
+from sqlalchemy import and_
+from pandas import DataFrame, merge, date_range, concat, read_sql_query
 from datetime import datetime, timedelta
 from . models import WarehouseModel
 from . import mongo, db, redis, scheduler, app
@@ -19,11 +20,8 @@ def main_job():
             start_date = datetime.strptime(last_date, '%Y-%m-%d %H:%M:%S') + timedelta(seconds=1)
         end_date = start_date + timedelta(seconds=299)
     else:
-        # Getting lowest Object from list
-        orders_data_set = mongo.db.mng_db['orders'].find({}).sort([("created_at", 1)]).limit(1)
-
         # Setting start and end dates
-        start_date = orders_data_set[0]['created_at']
+        start_date = mongo.db.mng_db['orders'].find({}).sort([("created_at", 1)]).limit(1)[0]['created_at']
         end_date = datetime(2020, 1, 1)
 
     print(f"Populating Database from {start_date} to {end_date}")  # Print info about populating data
@@ -32,29 +30,35 @@ def main_job():
 
 
 def populate_data(start_date, end_date):
-    orders_data_set = mongo.db.mng_db['orders'].find(
+    df_created_orders = get_order_data('created_at', start_date, end_date)
+
+    if not df_created_orders.empty:  # Check if Dataframe is empty
+        df_final = merge_data(df_created_orders)
+        # Write Dataframe to db
+        df_final.to_sql('warehouse', db.engine, if_exists='append', index_label='pk', index=False)
+        print(f"{df_final.shape[0]} rows inserted")  # Output amount of rows inserted
+    else:
+        print("Empty Query, Sleeping for the next 5 minutes")  # Output that no data was found to populate
+
+
+def merge_data(df_orders):
+    df_users = DataFrame(mongo.db.mng_db['users'].find())  # Get Users dataframe
+    df_final = merge(df_orders, df_users, on='user_id', how='left')  # Merge Dataframes Together
+    df_final = df_final.drop(columns=['_id_x', '_id_y'])  # Remove ObjectID Columns
+    df_final = column_rename(df_final)  # Rename Columns Based on the WarehouseModel model
+    return df_final
+
+
+def get_order_data(table_name, start_date, end_date):
+    df_orders = DataFrame(mongo.db.mng_db['orders'].find(
         {
-            "created_at": {
+            f"{table_name}": {
                 "$gte": str(start_date),
                 "$lt": str(end_date)
             }
         }
-    ).sort([("created_at", 1)])  # Filter and get orders
-
-    users_data_set = mongo.db.mng_db['users'].find({})  # Get Users
-
-    # Dataframe Queries
-    df_orders = DataFrame.from_records(orders_data_set)
-    df_users = DataFrame.from_records(users_data_set)
-
-    if not df_orders.empty:  # Check if Dataframe is empty
-        df_final = merge(df_orders, df_users, on='user_id', how='left')  # Merge Dataframes Together
-        df_final = df_final.drop(columns=['_id_x', '_id_y'])  # Remove ObjectID Columns
-        df_final = column_rename(df_final)  # Rename Columns Based on the WarehouseModel model
-        df_final.to_sql('warehouse', db.engine, if_exists='append', index=False)  # Write Dataframe to db
-        print(f"{df_final.shape[0]} rows inserted")  # Output amount of rows inserted
-    else:
-        print("Empty Query, Sleeping for the next 5 minutes")  # Output that no data was found to populate
+    ).sort([(f"{table_name}", 1)]))
+    return df_orders
 
 
 def column_rename(df):
@@ -76,4 +80,4 @@ def column_rename(df):
 # Fix for scheduler to run once on startup
 if not app.debug or environ.get('WERKZEUG_RUN_MAIN') == 'true':
     scheduler.start()
-    scheduler.add_job(func=main_job, trigger="interval", seconds=300)
+    scheduler.add_job(func=main_job, trigger="interval", seconds=15)
