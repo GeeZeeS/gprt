@@ -63,7 +63,6 @@ def updated_data(start_date, end_date):
             print(f"{df_concat_updated_orders.shape[0]} rows updated between dates: {start_date} to {end_date}")
 
 
-#
 def merge_data(df_orders):
     df_users = DataFrame(mongo.db.mng_db['users'].find())  # Get Users dataframe
     df_final = merge(df_orders, df_users, on='user_id', how='left')  # Merge Dataframes Together
