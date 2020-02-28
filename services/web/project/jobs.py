@@ -59,7 +59,7 @@ def updated_data(start_date, end_date):
             df_final]).drop_duplicates(['updated_at'], keep=False, inplace=True)
 
         if df_concat_updated_orders is not None:
-            df.to_sql('warehouse', db.engine, if_exists='append', index_label='pk', index=False)
+            df_concat_updated_orders.to_sql('warehouse', db.engine, if_exists='append', index_label='pk', index=False)
             print(f"{df_concat_updated_orders.shape[0]} rows updated between dates: {start_date} to {end_date}")
 
 
